@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 //On importe les routes
 const bookRoutes = require('./routes/books')
+const userRoutes = require('./routes/users')
 
 mongoose.connect('mongodb+srv://JTaylor:P5Grimoire_JT@p5-grimoire.vwnuvln.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
     next();
   });
 
-  app.use('/api/books', bookRoutes)
+  app.use('/api/books', bookRoutes);
+  app.use('/api/auth', userRoutes)
 
 module.exports = app;
