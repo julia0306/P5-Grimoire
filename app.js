@@ -1,12 +1,14 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+// path fait partie de NodeJS donc pas d'installation
+const path = require('path');
 
 //On importe les routes
 const bookRoutes = require('./routes/books')
 const userRoutes = require('./routes/users')
 
-mongoose.connect('mongodb+srv://JTaylor:P5Grimoire_JT@p5-grimoire.vwnuvln.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://JTaylor:P5Grimoire@cluster0.tnw5lio.mongodb.net/?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -24,6 +26,8 @@ app.use((req, res, next) => {
   });
 
   app.use('/api/books', bookRoutes);
-  app.use('/api/auth', userRoutes)
+  app.use('/api/auth', userRoutes);
+  // la requête vers le répertoire image n'étant pas gérée, il faut ajouter une route. On ajoute une route qui sert des fichiers statiques (middleware "static" fourni par expres. Onrécupère le rép  et on y concatène le répertoire "images")
+  app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;

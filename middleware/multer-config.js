@@ -1,4 +1,4 @@
-
+const multer = require('multer');
 // Pour faciliter la gestion d'envoi de fichiers envoyés à notre API via requête HTTP: Multer 
 
 // Installation du package Multer 
@@ -6,20 +6,18 @@
 // Expliuqer comment gérer les images, quel nom leur donner etc. 
 // On crée un dossier Images, puis un middleware (multer-config)
 
-const multer = require('multer');
-
 const MIME_TYPES = {
     'image/jpg': 'jpg',
     'image/jpeg': 'jpg',
-    'image/png': "png"
-}
+    'image/png': 'png'
+  };
 // On crée un objet de configuration
 // Fonction diskStorage pour lui dire qu'on va l'enregistrer sur le disque
 const storage = multer.diskStorage({
     // besoin de 2 éléments: destination et filename
     // destination = une fonction qui prend 3 arguments et qui dit dans quel dossier enregistrer les images. Dans destination, on appelle le callback tout de suite. On passe le dossier "images" en deuxième argument
     destination: (req, file, callback) => {
-        callback(null, 'images');
+        callback(null, 'images')
     },
     //Deuxième élement: filename. Explique à Multer quel nom de fichier donner. Evite d'avoir deux fichiers avec même nom. 
     filename: (req, file, callback) => {
