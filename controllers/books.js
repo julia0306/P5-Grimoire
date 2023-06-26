@@ -2,11 +2,15 @@
 const Book = require('../models/Book')
 
 exports.createBook = (req, res, next) => {
-    //On enlève l'id des données car il est généré automatiquement et pa prévu par le modèle
-    delete req.body._id;
+    // On parse l'objet requête. Il sera envoyé sous forme de chaine de caractères 
+    const bookObject = JSON.parse(req.body.book);
+    delete bookObject._id;
+    delete bookObject._userId;
     const book = new Book({
-        // opérateur spread qui va aller copier les champs qu'il y a dans le body de la request
-        ...req.body
+        // opérateur spread qui va aller copier les champs du bookObject
+        ...bookObject,
+        userID: req.auth.userID,
+        imageUrl: `{req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
     book.save()
         .then(()=> res.status(201).json({message: 'Livre enregistré'}))

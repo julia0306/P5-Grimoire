@@ -3,6 +3,7 @@
 
 const bcrypt = require ('bcrypt')
 const User = require ('../models/User')
+const jwt = require('jsonwebtoken')
 
 
 // Deux fonctions: signup pour enregistrement d'utilisateurs, login pour connecter utilisateurs existants
@@ -32,23 +33,27 @@ exports.login = (req, res, next) => {
     User.findOne({email: req.body.email})
         // la requête réussit
         .then( user => {
-            if (user === null){
+            if (!user){
                 // L'utilisateur n'existe pas
-                res.status(401).json({message: 'Paire identifiant / mot de passe incorrecte'})
+                return res.status(401).json({error: 'Paire identifiant / mot de passe incorrecte'})
             } else{
                 // On compare le mot de passe de la requête et celui enregistré en BDD
                 bcrypt.compare(req.body.password, user.password)
                 // La valeur est-elle fausse ? Erreur d'identification
-                .then (valid =>{ if (!valid){
-                    // erreur de mdp incorrect
-                    res.status(401).json({message: 'Paire identifiant / mot de passe incorrecte'})
-                } else {
-                    // Requête réussie
+                .then (valid =>{ 
+                    if (!valid){
+                        // erreur de mdp incorrect
+                        return res.status(401).json({message: 'Paire identifiant / mot de passe incorrecte'});
+                    }
+                        // Requête réussie
                     res.status(200).json({
                         userId: user._id,
-                        token: 'TOKEN'
-                    })
-                }
+                        token: jwt.sign(
+                            {userId: user._id},
+                            'RANDOM_TOKEN_SECRET',
+                            { expiresIn: '24h'}
+                        )
+                    });
 
                 })
                 // Erreur serveur
