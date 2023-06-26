@@ -1,9 +1,11 @@
 // on récupère le bookSchema
+const { error } = require('console');
 const Book = require('../models/Book');
+// Import de fs pour utiliser la fonction "unlink"
 const fs = require ('fs')
 
 exports.addBook = (req, res, next) => {
-    // On parse l'objet requête. Il sera envoyé sous forme de chaine de caractères 
+    // On parse l'objet requête. Il sera envoyé sous forme de chaine de caractères. JSON.parse() transforme l'objet stringifié en JS exploitable
     const bookObject = JSON.parse(req.body.book);
     // On supprime les deux champs ci-dessous:
     delete bookObject._id;
@@ -23,7 +25,9 @@ exports.addBook = (req, res, next) => {
 
 exports.updateBook = (req, res, next) => {
     const bookObject = req.file ?{
+        // JSON.parse() transforme objet stringifié en JS utilisable
         ...JSON.parse(req.body.book),
+        // "Req.protocole[.....] filename)'`permet de reconstruire l'url complète du fichier"
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body};
 
@@ -48,9 +52,23 @@ exports.updateBook = (req, res, next) => {
 // }
 
 exports.deleteBook = (req, res, next) =>{
-    Book.deleteOne({_id: req.params.id})
-        .then(() => res.status(200).json({message: 'Livre supprimé'}))
-        .catch(error => res.status(400).json({error}))
+    // On utilise l'id pour aller chercher le livre en question en BDD
+    Book.findOne({_id: req.params.id})
+    .then(book =>{
+        // On vérifie les droits
+        if(book.userId != req.auth.userId){
+            res.status(401).json({message: 'Non-autorisé'});
+        } else {
+            // On utilise le fait de savoir que notre URL d'image contient un segment /images/ pour séparer le nom de fichier
+            const filename = book.imageUrl.split('/images/')[1];
+            //La méthode unlink() du package  fs  permet de supprimer un fichier du système de fichiers.
+            fs.unlink(`images/${filename}`, ()=> {
+                Book.deleteOne({_id: req.params.id})
+                    .then(() => {res.status(200).json({message: "Livre supprimé"})})
+                    .catch (error => res.status(401).json({error}))
+            })
+        }
+    })
 }
 
 exports.getOneBook =  (req, res, next) => {
