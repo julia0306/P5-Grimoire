@@ -117,11 +117,11 @@ exports.rateBook = (req, res, next) => {
 //         //$push = opérateur MongoDB qui permet d'ajouter un élément à un array
 
 
-exports.BestRatedBooks=(req, res, next) =>{
-   const topRatedBooks = Book.find()
-      .sort({ rating: -1 }) // Sort in descending order based on rating
+exports.getBestRatedBooks=(req, res, next) =>{
+   Book.find()
+      .sort({ averageRating: -1 }) // Sort in descending order based on rating
       .limit(3)
     //on retourne le tableau des topRatedBooks
-    .then(topRatedBooks=> res.status(200).json(topRatedBooks))
+    .then(book=> res.status(200).json(book))
     .catch(error => res.status(400).json({error}))
 }

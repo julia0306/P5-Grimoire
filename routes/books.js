@@ -1,14 +1,15 @@
 const express = require('express');
 
 //on utilise la méthode "router" de Express. Permet de remplacer "app.get" par "router.get"
-const router = express.Router()
+const router = express.Router();
 
 // 1) On importe le middleware auth pour qu'il soit exécuté avant les gestionnaires des routes
-const auth = require('../middleware/auth')
+const auth = require('../middleware/auth');
 // 2) On importe le middleware de configuration multer
-const multer = require ('../middleware/multer-config')
+const multer = require ('../middleware/multer-config');
 
-const bookCtrl = require('../controllers/books')
+const bookCtrl = require('../controllers/books');
+
 
 
 
@@ -24,7 +25,7 @@ router.put('/:id', auth, multer, bookCtrl.updateBook)
 
 router.delete('/:id', auth, bookCtrl.deleteBook)
 
-router.get('/bestrating', bookCtrl.BestRatedBooks);
+router.get('/bestrating', bookCtrl.getBestRatedBooks);
 // middleware "auth" non requis
 router.get('/:id', bookCtrl.getOneBook);
 

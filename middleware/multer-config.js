@@ -1,6 +1,6 @@
 const multer = require('multer');
 // Pour faciliter la gestion d'envoi de fichiers envoyés à notre API via requête HTTP: Multer 
-
+const SharpMulter = require('sharp-multer')
 // Installation du package Multer 
 
 // Expliquer comment gérer les images, quel nom leur donner etc. 
@@ -13,7 +13,7 @@ const MIME_TYPES = {
   };
 // On crée un objet de configuration
 // Fonction diskStorage pour lui dire qu'on va l'enregistrer sur le disque
-const storage = multer.diskStorage({
+const  storage  = SharpMulter({
     // besoin de 2 éléments: destination et filename
     // destination = une fonction qui prend 3 arguments et qui dit dans quel dossier enregistrer les images. Dans destination, on appelle le callback tout de suite. On passe le dossier "images" en deuxième argument
     destination: (req, file, callback) => {
@@ -28,8 +28,12 @@ const storage = multer.diskStorage({
         const extension = MIME_TYPES[file.mimetype];
         // On appelle le callback avec un premier argument null ppour dire qu'il n'y a pas d'erreur puis on crée le filename entier. Name + timestamp (date.now -> rend le plus unique possible) + "." + extension
         callback(null, name + Date.now() + '.' + extension);
-
-    }
+    },
+    imageOptions:  {
+        fileFormat:  "webp",
+        quality:  80,
+        resize:  { width:  410, height:  540, resizeMode:  "contain"  },
+        }
 })
 
 // On exporte le middleware configuré. On appelle la méthode multer et la méthode single pour indiquer que c'est un fichier unique

@@ -1,12 +1,8 @@
 const express = require('express');
 const app = express();
-const helmet = require ('helmet'); // Sécurise Express 
-const mongoSanitize = require ('mongo-sanitize');
-const sharp = require ('sharp');
 const mongoose = require('mongoose');
 // path fait partie de NodeJS donc pas d'installation
 const path = require('path');
-
 //On importe les routes
 const bookRoutes = require('./routes/books')
 const userRoutes = require('./routes/users')
@@ -20,8 +16,6 @@ mongoose.connect('mongodb+srv://JTaylor:P5Grimoire@cluster0.tnw5lio.mongodb.net/
 // middleware qui permet d'accéder au corps de la requête (intercepte les requêtes qui contiennent du json et mettent à disposition le corps de la requête req.body):
 app.use(express.json());
 
-app.use(helmet());
-app.use(mongoSanitize);
 
 // CORS : permet à l'application d'accéder à l'API sans problème
 app.use((req, res, next) => {
