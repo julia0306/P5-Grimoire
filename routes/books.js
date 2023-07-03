@@ -24,10 +24,14 @@ router.put('/:id', auth, multer, bookCtrl.updateBook)
 
 router.delete('/:id', auth, bookCtrl.deleteBook)
 
+router.get('/bestrating', bookCtrl.BestRatedBooks);
 // middleware "auth" non requis
 router.get('/:id', bookCtrl.getOneBook);
 
 // middleware "auth" non requis
 router.get('/', bookCtrl.getAllBooks);
+
+router.post('/:id/rating', auth, bookCtrl.rateBook)
+
 
 module.exports = router;

@@ -3,7 +3,7 @@ const multer = require('multer');
 
 // Installation du package Multer 
 
-// Expliuqer comment gérer les images, quel nom leur donner etc. 
+// Expliquer comment gérer les images, quel nom leur donner etc. 
 // On crée un dossier Images, puis un middleware (multer-config)
 
 const MIME_TYPES = {

@@ -1,3 +1,5 @@
+// Ce fichier permet l'enregistrement de la logique métier pour les routes "books"
+
 // on récupère le bookSchema
 const { error } = require('console');
 const Book = require('../models/Book');
@@ -17,7 +19,7 @@ exports.addBook = (req, res, next) => {
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
-    // On enregistre cette objet dans la BDD avec la méthode save()
+    // On enregistre cet objet dans la BDD avec la méthode save()
     book.save()
         .then(()=> res.status(201).json({message: 'Livre enregistré'}))
         .catch(error => res.status(400).json({error}))
@@ -83,4 +85,43 @@ exports.getAllBooks = (req, res, next) => {
     //on retourne le tableau de tous les books trouvés dans la BDD
         .then(books=> res.status(200).json(books))
         .catch(error => res.status(400).json({error}))
+}
+
+exports.rateBook = (req, res, next) => {
+    const id = req.params.id;
+    const grade = req.body.rating;
+    const userId = req.body.userId;
+  
+    Book.findOne({_id:id})
+    .then ((book)=>{
+        if (book.ratings.find(rating => rating.userId === userId)) {
+            res.status(401).json({message: 'Non-autorisé'})
+        }
+        return Book.findOneAndUpdate(
+            { _id:id},
+            { $push: { ratings: {userId, grade} }},
+            {new: true} // retourne le livre mis à jour//
+        )
+})
+    .then((updatedBook) => {
+        const numberOfRatings = updatedBook.ratings.length;
+        const ratingTotal = updatedBook.ratings.reduce ((sum, rating) => sum + rating.grade, 0);
+        updatedBook.averageRating = (ratingTotal / numberOfRatings).toFixed(1) // toFixed donne le nombre de chiffres après la virgule.
+        return updatedBook.save()
+    })
+    .then((book) => {
+        res.status(200).json(book); 
+    })
+    .catch((error) => res.status(400).json({ error })); 
+}
+//         //$push = opérateur MongoDB qui permet d'ajouter un élément à un array
+
+
+exports.BestRatedBooks=(req, res, next) =>{
+   const topRatedBooks = Book.find()
+      .sort({ rating: -1 }) // Sort in descending order based on rating
+      .limit(3)
+    //on retourne le tableau des topRatedBooks
+    .then(topRatedBooks=> res.status(200).json(topRatedBooks))
+    .catch(error => res.status(400).json({error}))
 }

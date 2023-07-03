@@ -1,3 +1,4 @@
+//// Ce fichier permet l'enregistrement de la logique métier pour les routes "users"
 // On récupère le modèle "user"
 // On installe le package bcrypt
 
