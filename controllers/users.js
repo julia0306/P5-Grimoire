@@ -10,7 +10,8 @@ const jwt = require('jsonwebtoken')
 
 // Deux fonctions: signup pour enregistrement d'utilisateurs, login pour connecter utilisateurs existants
 exports.signup = (req, res, next) => {
-    if (!req.body.email || !req.body.email.includes('@')) {
+    let emailFormat = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+    if (!req.body.email || !req.body.email.match(emailFormat)) {
         return res.status(400).json({ message: "L'adresse mail saisie n'est pas correcte" });
     
     }
@@ -56,11 +57,11 @@ exports.login = (req, res, next) => {
                         return res.status(401).json({message: 'Paire identifiant / mot de passe incorrecte'});
                     }
                         // Requête réussie
-                    res.status(200).json({
+                    return res.status(200).json({
                         userId: user._id,
                         token: jwt.sign(
                             {userId: user._id},
-                            'RANDOM_TOKEN_SECRET',
+                            process.env.TOKEN_SECRET,
                             { expiresIn: '24h'}
                         )
                     });
@@ -68,13 +69,13 @@ exports.login = (req, res, next) => {
                 })
                 // Erreur serveur
                 .catch(error => {
-                    res.status(500).json({error})
+                    return res.status(500).json({error})
                 })
             }
         })
         // Erreur d'exécution de la requête (erreur serveur et non erreur de paire mdp / email)
         .catch(error => {
-            res.status(500).json({error})
+            return res.status(500).json({error})
         })
 
 }

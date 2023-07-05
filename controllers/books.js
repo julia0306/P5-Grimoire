@@ -1,7 +1,6 @@
 // Ce fichier permet l'enregistrement de la logique métier pour les routes "books"
 
 // on récupère le bookSchema
-const { error } = require('console');
 const Book = require('../models/Book');
 // Import de fs pour utiliser la fonction "unlink"
 const fs = require ('fs')
@@ -10,8 +9,7 @@ exports.addBook = (req, res, next) => {
     // On parse l'objet requête. Il sera envoyé sous forme de chaine de caractères. JSON.parse() transforme l'objet stringifié en JS exploitable
     const bookObject = JSON.parse(req.body.book);
     // On supprime les deux champs ci-dessous:
-    delete bookObject._id;
-    delete bookObject._userId;
+    delete bookObject.userId;
     const book = new Book({
         // opérateur spread qui va aller copier les champs du bookObject
         ...bookObject,
@@ -32,12 +30,11 @@ exports.updateBook = (req, res, next) => {
         // "Req.protocole[.....] filename)'`permet de reconstruire l'url complète du fichier"
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body};
-
-    delete bookObject._userId;
+    delete bookObject.userId;
     Book.findOne({_id: req.params.id})
         .then((book) => {
             if (book.userId != req.auth.userId){
-                    res.status(401).json({message: "Non autorisé"})
+                    return res.status(401).json({message: "Non autorisé"})
             } else {
                 Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
                     .then (()=> res.status(200).json({message: 'Livre modifié'}))
@@ -59,7 +56,7 @@ exports.deleteBook = (req, res, next) =>{
     .then(book =>{
         // On vérifie les droits
         if(book.userId != req.auth.userId){
-            res.status(401).json({message: 'Non-autorisé'});
+            return res.status(401).json({message: 'Non-autorisé'});
         } else {
             // On utilise le fait de savoir que notre URL d'image contient un segment /images/ pour séparer le nom de fichier
             const filename = book.imageUrl.split('/images/')[1];
@@ -90,12 +87,12 @@ exports.getAllBooks = (req, res, next) => {
 exports.rateBook = (req, res, next) => {
     const id = req.params.id;
     const grade = req.body.rating;
-    const userId = req.body.userId;
+    const userId = req.auth.userId;
   
     Book.findOne({_id:id})
     .then ((book)=>{
         if (book.ratings.find(rating => rating.userId === userId)) {
-            res.status(401).json({message: 'Non-autorisé'})
+            return res.status(401).json({message: 'Non-autorisé'})
         }
         return Book.findOneAndUpdate(
             { _id:id},

@@ -3,16 +3,16 @@ const app = express();
 const mongoose = require('mongoose');
 // path fait partie de NodeJS donc pas d'installation
 const path = require('path');
-const cors=require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+require('dotenv').config();
 
 
 //On importe les routes
 const bookRoutes = require('./routes/books')
 const userRoutes = require('./routes/users')
 
-mongoose.connect('mongodb+srv://JTaylor:P5Grimoire@cluster0.tnw5lio.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${process.env.DATABASE}/?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -20,7 +20,6 @@ mongoose.connect('mongodb+srv://JTaylor:P5Grimoire@cluster0.tnw5lio.mongodb.net/
 
 // middleware qui permet d'accéder au corps de la requête (intercepte les requêtes qui contiennent du json et mettent à disposition le corps de la requête req.body):
 app.use(express.json());
-app.use(cors())
 app.use(mongoSanitize());
 app.use(helmet())
 
