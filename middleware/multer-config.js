@@ -12,7 +12,7 @@ const MIME_TYPES = {
     'image/png': 'png'
   };
 // On crée un objet de configuration
-// Fonction diskStorage pour lui dire qu'on va l'enregistrer sur le disque
+// Fonction diskStorage pour lui dire qu'on va l'enregistrer sur le disque -> supprimé en passant à SharpMulter 
 const  storage  = SharpMulter({
     // besoin de 2 éléments: destination et filename
     // destination = une fonction qui prend 3 arguments et qui dit dans quel dossier enregistrer les images. Dans destination, on appelle le callback tout de suite. On passe le dossier "images" en deuxième argument
@@ -29,6 +29,7 @@ const  storage  = SharpMulter({
         // On appelle le callback avec un premier argument null ppour dire qu'il n'y a pas d'erreur puis on crée le filename entier. Name + timestamp (date.now -> rend le plus unique possible) + "." + extension
         callback(null, name + Date.now() + '.' + extension);
     },
+    //https://snyk.io/advisor/npm-package/sharp-multer
     imageOptions:  {
         fileFormat:  "webp",
         quality:  80,
