@@ -46,7 +46,7 @@ exports.login = (req, res, next) => {
         .then( user => {
             if (!user){
                 // L'utilisateur n'existe pas
-                return res.status(401).json({error: 'Paire identifiant / mot de passe incorrecte'})
+                return res.status(401).json({message: 'Paire identifiant / mot de passe incorrecte'})
             } else{
                 // On compare le mot de passe de la requête et celui enregistré en BDD
                 bcrypt.compare(req.body.password, user.password)
@@ -62,7 +62,7 @@ exports.login = (req, res, next) => {
                         token: jwt.sign(
                             {userId: user._id},
                             process.env.TOKEN_SECRET,
-                            { expiresIn: '24h'}
+                            { expiresIn: '4h'}
                         )
                     });
 

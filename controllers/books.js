@@ -1,21 +1,22 @@
 // Ce fichier permet l'enregistrement de la logique métier pour les routes "books"
 
-// on récupère le bookSchema
+// on récupère le bookSchema et on importe file system (fs) pour utiliser la fonction "unlink"
 const Book = require('../models/Book');
-// Import de fs pour utiliser la fonction "unlink"
 const fs = require ('fs')
 
 exports.addBook = (req, res, next) => {
     // On parse l'objet requête. Il sera envoyé sous forme de chaine de caractères. JSON.parse() transforme l'objet stringifié en JS exploitable
     const bookObject = JSON.parse(req.body.book);
-    // On supprime les deux champs ci-dessous:
+    // On supprime le champ userId:
     delete bookObject.userId;
+    //On crée une nouvelle instance de modèle Book avec les données du livre
     const book = new Book({
         // opérateur spread qui va aller copier les champs du bookObject
         ...bookObject,
         // On extrait le userId de l'objet requête
         userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        // Mise à jour de l'url pour correspondre à la config que j'ai faite de Sharp
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}_optimized.webp`
     });
     // On enregistre cet objet dans la BDD avec la méthode save()
     book.save()
@@ -28,13 +29,14 @@ exports.updateBook = (req, res, next) => {
         // JSON.parse() transforme objet stringifié en JS utilisable
         ...JSON.parse(req.body.book),
         // "Req.protocole[.....] filename)'`permet de reconstruire l'url complète du fichier"
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}_optimized.webp`
     } : {...req.body};
     delete bookObject.userId;
     Book.findOne({_id: req.params.id})
         .then((book) => {
             if (book.userId != req.auth.userId){
-                    return res.status(401).json({message: "Non autorisé"})
+                // Code erreur 403, spécifié par le doc "Exigences API". Idem pour le message 
+                    return res.status(403).json({message: "unauthorized request"})
             } else {
                 Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
                     .then (()=> res.status(200).json({message: 'Livre modifié'}))
@@ -42,13 +44,6 @@ exports.updateBook = (req, res, next) => {
             }
         })
 }
-    // // selon que l'utilisateur aura -ou non - transmis un fichier, le format ne sera pas le même
-//     // Fichier sous forme de chaine de caractère si fichier transmis ou non 
-//     // Si modif avec fichier, il y a un champ file dans la requête
-//     Book.updateOne({_id: req.params.id }, {...req.body, _id:req.params.id})
-//         .then(()=> res.status(200).json({message: 'Livre modifié'}))
-//         .catch(error => res.status(400).json({error}))
-// }
 
 exports.deleteBook = (req, res, next) =>{
     // On utilise l'id pour aller chercher le livre en question en BDD
