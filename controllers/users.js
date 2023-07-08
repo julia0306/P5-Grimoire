@@ -1,7 +1,5 @@
 //// Ce fichier permet l'enregistrement de la logique métier pour les routes "users"
-// On récupère le modèle "user"
-// On installe le package "bcrypt"
-// On installe le package "jsonwebtoken"
+// On récupère le modèle "user", on installe le package "bcrypt", on installe le package "jsonwebtoken"
 
 const bcrypt = require ('bcrypt')
 const User = require ('../models/User')
@@ -15,7 +13,7 @@ exports.signup = (req, res, next) => {
         return res.status(400).json({ message: "L'adresse mail saisie n'est pas correcte" });
     
     }
-    //méthode test vérifie si le mail respecte la condition
+    //méthode test vérifie si le mail respecte la condition. Ici, on veut que l'adresse mail respecte la structure d'un mail
     if (!req.body.password || !/[A-Z]/.test(req.body.password)) {
         return res.status(400).json({ message: 'Le mot de passe doit contenir une lettre majuscule' });
       }

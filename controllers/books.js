@@ -1,19 +1,16 @@
-// Ce fichier permet l'enregistrement de la logique métier pour les routes "books"
 
 // on récupère le bookSchema et on importe file system (fs) pour utiliser la fonction "unlink"
 const Book = require('../models/Book');
 const fs = require ('fs')
 
+
 exports.addBook = (req, res, next) => {
-    // On parse l'objet requête. Il sera envoyé sous forme de chaine de caractères. JSON.parse() transforme l'objet stringifié en JS exploitable
     const bookObject = JSON.parse(req.body.book);
-    // On supprime le champ userId:
     delete bookObject.userId;
     //On crée une nouvelle instance de modèle Book avec les données du livre
     const book = new Book({
         // opérateur spread qui va aller copier les champs du bookObject
         ...bookObject,
-        // On extrait le userId de l'objet requête
         userId: req.auth.userId,
         // Mise à jour de l'url pour correspondre à la config que j'ai faite de Sharp
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}_optimized.webp`
@@ -23,6 +20,7 @@ exports.addBook = (req, res, next) => {
         .then(()=> res.status(201).json({message: 'Livre enregistré'}))
         .catch(error => res.status(400).json({error}))
 }
+
 
 exports.updateBook = (req, res, next) => {
     const bookObject = req.file ?{
@@ -45,6 +43,7 @@ exports.updateBook = (req, res, next) => {
         })
 }
 
+
 exports.deleteBook = (req, res, next) =>{
     // On utilise l'id pour aller chercher le livre en question en BDD
     Book.findOne({_id: req.params.id})
@@ -65,11 +64,13 @@ exports.deleteBook = (req, res, next) =>{
     })
 }
 
+
 exports.getOneBook =  (req, res, next) => {
     Book.findOne({ _id: req.params.id })
       .then(book => res.status(200).json(book))
       .catch(error => res.status(404).json({ error }));
   }
+
 
 exports.getAllBooks = (req, res, next) => {
     //méthode find qui retourne tous les objets
@@ -78,6 +79,7 @@ exports.getAllBooks = (req, res, next) => {
         .then(books=> res.status(200).json(books))
         .catch(error => res.status(400).json({error}))
 }
+
 
 exports.rateBook = (req, res, next) => {
     const id = req.params.id;
@@ -91,7 +93,7 @@ exports.rateBook = (req, res, next) => {
         }
         return Book.findOneAndUpdate(
             { _id:id},
-            { $push: { ratings: {userId, grade} }},
+            { $push: { ratings: {userId, grade} }}, //$push = opérateur MongoDB qui permet d'ajouter un élément à un array
             {new: true} // retourne le livre mis à jour//
         )
 })
@@ -102,11 +104,10 @@ exports.rateBook = (req, res, next) => {
         return updatedBook.save()
     })
     .then((book) => {
-        res.status(200).json(book); 
+       return res.status(200).json(book); 
     })
     .catch((error) => res.status(400).json({ error })); 
 }
-//         //$push = opérateur MongoDB qui permet d'ajouter un élément à un array
 
 
 exports.getBestRatedBooks=(req, res, next) =>{

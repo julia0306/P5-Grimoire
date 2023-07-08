@@ -38,7 +38,7 @@ app.use((req, res, next) => {
   //On remet le début de la route et on indique qu'on utilise le routeur exposé par bookRoutes ou par userRoutes 
   app.use('/api/books', bookRoutes);
   app.use('/api/auth', userRoutes);
-// la requête vers le répertoire image n'étant pas gérée, il faut ajouter une route. On ajoute une route qui sert des fichiers statiques (middleware "static" fourni par expres. Onrécupère le rép  et on y concatène le répertoire "images")
+// la requête vers le répertoire image n'étant pas gérée, il faut ajouter une route. On ajoute une route qui sert des fichiers statiques (middleware "static" fourni par expres. On récupère le répertoire  et on y concatène le dossier "images")
   app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
