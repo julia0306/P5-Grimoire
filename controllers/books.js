@@ -35,11 +35,14 @@ exports.updateBook = (req, res, next) => {
             if (book.userId != req.auth.userId){
                 // Code erreur 403, spécifié par le doc "Exigences API". Idem pour le message 
                     return res.status(403).json({message: "unauthorized request"})
-            } else {
-                Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
-                    .then (()=> res.status(200).json({message: 'Livre modifié'}))
-                    .catch (error => res.status(400).json({error}))
+            } else if (req.file) {
+                const filename = book.imageUrl.split('/images')[1];
+                fs.unlink(`images/${filename}`, () => { });
             }
+            // Ci-dessus, on supprime l'image si celle-ci a été modifiée lors  de la modification d'un livre
+            Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
+                .then (()=> res.status(200).json({message: 'Livre modifié'}))
+                .catch (error => res.status(400).json({error}))
         })
 }
 
