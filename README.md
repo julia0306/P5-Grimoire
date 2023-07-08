@@ -13,7 +13,7 @@ L'objectif de ce projet était, à partir d'un front-end pré-existant, de crée
 ---
 ## Configuration et installation
 
-Pour exécuter ce projet localement, il sera nécessaire de configurer les variables d'environnement et de configurer la connexion à la base de données. 
+Pour exécuter ce projet localement, il sera nécessaire de configurer les variables d'environnement. 
 
 ### 1. Cloner le dépôt en local 
 Clonez le projet à l'aide de la commande  
